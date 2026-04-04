@@ -1,0 +1,24 @@
+{
+  "name": "call-campaign-simulator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/solution.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "pnpm build && node --test dist/campaign/Campaign.test.js",
+    "start": "node dist/solution.js",
+    "demo": "node dist/demo.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.32.1",
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0"
+  }
+}
