@@ -46,21 +46,21 @@ src/
 ## Using the Campaign
 
 ```typescript
-import { Campaign } from './src/solution';
-import { RealTimeClock } from './src/clock';
+import { Campaign } from "./src/solution";
+import { RealTimeClock } from "./src/clock";
 
 const clock = new RealTimeClock();
 
 const campaign = new Campaign(
   {
-    customerList: ['+20100000001', '+20100000002', /* … */],
-    startTime: '09:00',
-    endTime: '17:00',
+    customerList: ["+20100000001", "+20100000002" /* … */],
+    startTime: "09:00",
+    endTime: "17:00",
     maxConcurrentCalls: 3,
     maxDailyMinutes: 120,
     maxRetries: 2,
     retryDelayMs: 3_600_000,
-    timezone: 'Africa/Cairo', // optional
+    timezone: "Africa/Cairo", // optional
   },
   (phoneNumber) => myCallHandler(phoneNumber), // returns Promise<CallResult>
   clock,
@@ -75,3 +75,8 @@ console.log(campaign.getStatus());
 ## Assumptions
 
 See `DESIGN.md` for a full list of documented assumptions and edge case decisions.
+
+### AI Usage
+
+- Used AI in documenting the code well, and in generating test cases.
+- Used AI to help me understand the task better.

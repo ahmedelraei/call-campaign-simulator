@@ -64,7 +64,7 @@ Your concrete `Campaign` class must:
 
 ```typescript
 // solution.ts
-export { Campaign } from './your-campaign-file';
+export { Campaign } from "./your-campaign-file";
 ```
 
 The `interfaces.ts` file defines: `IClock`, `CallHandler`, `CallResult`, `CampaignConfig`, `CampaignStatus`, `CampaignState`, and `ICampaign`. Read it carefully — it is the contract your code will be evaluated against.
@@ -140,8 +140,3 @@ Update your scheduling logic so that:
 - [`date-fns-tz`](https://github.com/marnusw/date-fns-tz) — timezone plugin for `date-fns`
 
 Document your approach and any assumptions in your design document.
-
-
-### AI Usage
-- Used AI in documenting the code well, and in generating test cases.
-- Used AI to help me understand the task better.
