@@ -5,8 +5,8 @@ import {
   CampaignConfig,
   CampaignStatus,
   CampaignState,
-} from '../types';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+} from "../types";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
 
 interface RetryEntry {
   phoneNumber: string;
@@ -20,11 +20,11 @@ export class Campaign implements ICampaign {
   private readonly clock: IClock;
   private readonly timezone: string;
 
-  private state: CampaignState = 'idle';
-  private cursor = 0;                        // where we are in the customer list -- next index in list
+  private state: CampaignState = "idle";
+  private cursor = 0; // where we are in the customer list -- next index in list
   private activeCallCount = 0;
   private dailyMinutesUsed = 0;
-  private currentDay = '';                    // tracks the current day (YYYY-MM-DD) so we know when to reset the cap
+  private currentDay = ""; // tracks the current day (YYYY-MM-DD) so we know when to reset the cap
   private retryQueue: RetryEntry[] = [];
   private totalProcessed = 0;
   private totalFailed = 0;
@@ -45,21 +45,21 @@ export class Campaign implements ICampaign {
   // --- Public API ---
 
   start(): void {
-    if (this.state === 'running' || this.state === 'completed') return;
-    this.state = 'running';
+    if (this.state === "running" || this.state === "completed") return;
+    this.state = "running";
     this.syncDay();
     this.scheduleNext();
   }
 
   pause(): void {
-    if (this.state !== 'running') return;
-    this.state = 'paused';
+    if (this.state !== "running") return;
+    this.state = "paused";
     this.clearScheduler();
   }
 
   resume(): void {
-    if (this.state !== 'paused') return;
-    this.state = 'running';
+    if (this.state !== "paused") return;
+    this.state = "running";
     this.syncDay();
     this.scheduleNext();
   }
@@ -81,7 +81,7 @@ export class Campaign implements ICampaign {
   // finishes, we resume, a timer fires — we come back here and try to keep
   // slots filled.
   private scheduleNext(): void {
-    if (this.state !== 'running') return;
+    if (this.state !== "running") return;
 
     this.syncDay();
 
@@ -89,7 +89,7 @@ export class Campaign implements ICampaign {
     if (this.activeCallCount === 0) {
       const allDialled = this.cursor >= this.config.customerList.length;
       if (allDialled && this.retryQueue.length === 0) {
-        this.state = 'completed';
+        this.state = "completed";
         this.clearScheduler();
         return;
       }
@@ -120,12 +120,18 @@ export class Campaign implements ICampaign {
   // the list and it's currently in a live call, we skip over it temporarily
   // rather than advancing the cursor — so it gets another chance once the
   // first call wraps up.
-  private pickNextNumber(): { phoneNumber: string; retryAttempt: number } | null {
+  private pickNextNumber(): {
+    phoneNumber: string;
+    retryAttempt: number;
+  } | null {
     // Check retries before fresh numbers — don't retry a number already mid-call
     const now = this.clock.now();
     for (let i = 0; i < this.retryQueue.length; i++) {
       const entry = this.retryQueue[i]!;
-      if (entry.readyAt <= now && !this.numbersInFlight.has(entry.phoneNumber)) {
+      if (
+        entry.readyAt <= now &&
+        !this.numbersInFlight.has(entry.phoneNumber)
+      ) {
         this.retryQueue.splice(i, 1);
         return { phoneNumber: entry.phoneNumber, retryAttempt: entry.attempts };
       }
@@ -152,6 +158,7 @@ export class Campaign implements ICampaign {
       .then((result) => {
         this.activeCallCount--;
         this.numbersInFlight.delete(phoneNumber);
+        // TODO: I think we should add the duration to the daily minutes only if the call was answered.
         this.dailyMinutesUsed += result.durationMs / 60_000;
 
         if (result.answered) {
@@ -186,7 +193,7 @@ export class Campaign implements ICampaign {
 
     // Set a timer to wake us back up when the retry window opens
     this.clock.setTimeout(() => {
-      if (this.state === 'running') this.scheduleNext();
+      if (this.state === "running") this.scheduleNext();
     }, this.config.retryDelayMs);
   }
 
@@ -199,8 +206,10 @@ export class Campaign implements ICampaign {
     const [startH, startM] = this.parseTime(this.config.startTime);
     const [endH, endM] = this.parseTime(this.config.endTime);
 
-    return currentMinutes >= startH * 60 + startM
-      && currentMinutes < endH * 60 + endM;
+    return (
+      currentMinutes >= startH * 60 + startM &&
+      currentMinutes < endH * 60 + endM
+    );
   }
 
   // Sleep until the working window opens again (today or tomorrow)
@@ -211,7 +220,7 @@ export class Campaign implements ICampaign {
 
     this.schedulerTimerId = this.clock.setTimeout(() => {
       this.schedulerTimerId = null;
-      if (this.state === 'running') {
+      if (this.state === "running") {
         this.syncDay();
         this.scheduleNext();
       }
@@ -226,7 +235,7 @@ export class Campaign implements ICampaign {
 
     this.schedulerTimerId = this.clock.setTimeout(() => {
       this.schedulerTimerId = null;
-      if (this.state === 'running') {
+      if (this.state === "running") {
         this.syncDay();
         this.scheduleNext();
       }
@@ -246,8 +255,8 @@ export class Campaign implements ICampaign {
   private todayString(): string {
     const z = toZonedTime(new Date(this.clock.now()), this.timezone);
     const y = z.getFullYear();
-    const m = String(z.getMonth() + 1).padStart(2, '0');
-    const d = String(z.getDate()).padStart(2, '0');
+    const m = String(z.getMonth() + 1).padStart(2, "0");
+    const d = String(z.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
   }
 
@@ -275,8 +284,8 @@ export class Campaign implements ICampaign {
   // --- Utility ---
 
   private parseTime(hhmm: string): [number, number] {
-    const [h, m] = hhmm.split(':');
-    return [parseInt(h ?? '0', 10), parseInt(m ?? '0', 10)];
+    const [h, m] = hhmm.split(":");
+    return [parseInt(h ?? "0", 10), parseInt(m ?? "0", 10)];
   }
 
   private clearScheduler(): void {
@@ -294,12 +303,12 @@ export class Campaign implements ICampaign {
   }
 
   private resolveTimezone(tz?: string): string {
-    if (!tz) return 'UTC';
+    if (!tz) return "UTC";
     try {
       Intl.DateTimeFormat(undefined, { timeZone: tz });
       return tz;
     } catch {
-      return 'UTC';
+      return "UTC";
     }
   }
 }
